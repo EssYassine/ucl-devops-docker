@@ -2,6 +2,14 @@
 
 Welcome to the Docker Lab! This repository contains 8 progressive exercises to master Docker fundamentals, from simple containers to complex microservices architectures.
 
+## 📖 Documentation des exercices
+
+Tous les exercices du TP DevOps / Docker sont documentés dans le fichier [documentation.md](./documentation.md).  
+Vous y trouverez :  
+- Objectifs de chaque exercice  
+- Scripts et commandes Docker  
+- Résultats attendus
+
 ## Getting Started
 
 ### Prerequisites
