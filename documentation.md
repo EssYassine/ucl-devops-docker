@@ -132,5 +132,75 @@ Résultat attendu :
 
 &nbsp;
 
-## 🐋 Exercice 3 – (à compléter)
-📌 Cette section sera remplie après avoir terminé l’exercice 3.
+## 🐋 Exercice 3 – Simple Dockerfile : Curl Tool
+#### Objectif :
+
+Créer un conteneur Docker exécutant ```curl``` pour récupérer une URL, en utilisant un utilisateur non-root et un argument pour l’URL.
+
+#### Contraintes :
+
+- Dockerfile : ```3-curl.dockerfile```
+
+- Conteneur exécuté en utilisateur non-root
+
+- L’URL doit être passée comme argument
+
+- Conteneur supprimé après exécution
+
+
+#### Dockerfile :
+
+- **Fichier :** ```3-curl.dockerfile```
+
+    ```dockerfile
+    FROM debian:bullseye-slim
+
+    # Installer curl
+    RUN apt-get update && \
+        apt-get install -y curl && \
+        rm -rf /var/lib/apt/lists/*
+
+    # Créer un utilisateur non-root
+    RUN useradd -m curluser
+
+    # Changer pour l'utilisateur non-root
+    USER curluser
+
+    # Définir le point d'entrée pour passer l'URL en argument
+    ENTRYPOINT ["curl"]
+    ```
+
+- **Explications :**
+
+    - ```FROM debian:bullseye-slim``` → base légère Debian.
+
+    - ```RUN apt-get update && apt-get install -y curl``` → installe curl.
+
+    - ```RUN useradd -m curluser``` → crée un utilisateur non-root.
+
+    - ```USER curluser``` → le conteneur s’exécute en tant que curluser.
+
+    - ```ENTRYPOINT ["curl"]``` → le conteneur exécutera toujours curl avec les arguments passés lors du ```docker run```.
+
+#### Commandes Docker :
+
+-  Construire l’image :
+
+    ```bash
+    docker build -t my-curl -f 3-curl.dockerfile .
+    ```
+
+- Lancer le conteneur avec une URL :
+
+    ```bash
+    docker run --rm my-curl https://example.com
+    ```
+
+- Le conteneur exécutera ```curl https://example.com``` automatiquement.
+
+- Le conteneur sera supprimé après exécution.
+
+&nbsp;
+
+## 🐋 Exercice 4 – (à compléter)
+📌 Cette section sera remplie après avoir terminé l’exercice 4.
