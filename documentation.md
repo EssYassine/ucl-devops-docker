@@ -34,14 +34,14 @@ Faire tourner un conteneur Docker qui affiche un message personnalisé puis se s
 
 #### Contraintes :
 
-> - **Image :** ```anthonyjhoiro/whalesay```
+- **Image :** ```anthonyjhoiro/whalesay```
 
-> - **Message :** "Hello M1 Cyber 2025"
+- **Message :** "Hello M1 Cyber 2025"
 
 
-> - **Script :** ```1-hello-whale.sh``` à la racine du dépôt.
+- **Script :** ```1-hello-whale.sh``` à la racine du dépôt.
 
-> - Le conteneur doit être supprimé après exécution.
+- Le conteneur doit être supprimé après exécution.
 
 #### Commande Docker de base :
 
@@ -78,6 +78,59 @@ Résultat attendu :
 ```
 Le conteneur est automatiquement supprimé après exécution.
 
-## 🐋 Exercice 2 – (à compléter)
+&nbsp;
 
-📌 Cette section sera remplie après avoir terminé l’exercice 2.
+## 🐋 Exercice 2 – Interactive Python Shell
+#### Objectif :
+
+Lancer un conteneur Docker Python 3 en mode interactif, pour travailler dans un environnement Python temporaire.
+
+#### Contraintes :
+
+- **Image :** ```python:3``` (officielle)
+
+- **Script :** ```2-python.sh``` à la racine du dépôt.
+
+- Mode interactif (```-it```)
+
+- Le conteneur doit être supprimé automatiquement après fermeture.
+
+#### Commande Docker :
+
+Fichier : ```2-python.sh```
+```bash
+#!/bin/bash
+docker run --rm -it python:3
+```
+
+Rendre exécutable :
+```bash
+chmod +x 2-python.sh
+```
+
+Exécuter :
+```bash
+./2-python.sh
+```
+
+Résultat attendu : 
+
+- Lancement d’un prompt Python :
+  ```python-repl
+  Python 3.x.x (default, ...)
+  >>>
+  ```
+
+- Exemple d’utilisation :
+  ```python
+  >>> print("Hello M1 Cyber 2025")
+  Hello M1 Cyber 2025
+  >>> exit()
+  ```
+
+- Après la sortie (```exit()```), le conteneur est supprimé automatiquement.
+
+&nbsp;
+
+## 🐋 Exercice 3 – (à compléter)
+📌 Cette section sera remplie après avoir terminé l’exercice 3.
