@@ -28,11 +28,11 @@ git --version
 &nbsp;
 
 ## 🐋 Exercice 1 – Hello Whale
-#### Objectif :
+### Objectif :
 
 Faire tourner un conteneur Docker qui affiche un message personnalisé puis se supprime automatiquement après son exécution.
 
-#### Contraintes :
+### Contraintes :
 
 - **Image :** ```anthonyjhoiro/whalesay```
 
@@ -43,7 +43,7 @@ Faire tourner un conteneur Docker qui affiche un message personnalisé puis se s
 
 - Le conteneur doit être supprimé après exécution.
 
-#### Commande Docker de base :
+### Commande Docker de base :
 
 Fichier : ```1-hello-whale.sh```
 ```bash
@@ -61,7 +61,7 @@ Exécuter :
 ./1-hello-whale.sh
 ```
 
-Résultat attendu : 
+Résultat obtenu : 
 ```python
  _____________________
 < Hello M1 Cyber 2025 >
@@ -81,11 +81,11 @@ Le conteneur est automatiquement supprimé après exécution.
 &nbsp;
 
 ## 🐋 Exercice 2 – Interactive Python Shell
-#### Objectif :
+### Objectif :
 
 Lancer un conteneur Docker Python 3 en mode interactif, pour travailler dans un environnement Python temporaire.
 
-#### Contraintes :
+### Contraintes :
 
 - **Image :** ```python:3``` (officielle)
 
@@ -95,7 +95,7 @@ Lancer un conteneur Docker Python 3 en mode interactif, pour travailler dans un 
 
 - Le conteneur doit être supprimé automatiquement après fermeture.
 
-#### Commande Docker :
+### Commande Docker :
 
 Fichier : ```2-python.sh```
 ```bash
@@ -133,11 +133,11 @@ Résultat attendu :
 &nbsp;
 
 ## 🐋 Exercice 3 – Simple Dockerfile : Curl Tool
-#### Objectif :
+### Objectif :
 
 Créer un conteneur Docker exécutant ```curl``` pour récupérer une URL, en utilisant un utilisateur non-root et un argument pour l’URL.
 
-#### Contraintes :
+### Contraintes :
 
 - Dockerfile : ```3-curl.dockerfile```
 
@@ -148,7 +148,7 @@ Créer un conteneur Docker exécutant ```curl``` pour récupérer une URL, en ut
 - Conteneur supprimé après exécution
 
 
-#### Dockerfile :
+### Dockerfile :
 
 - **Fichier :** ```3-curl.dockerfile```
 
@@ -182,7 +182,7 @@ Créer un conteneur Docker exécutant ```curl``` pour récupérer une URL, en ut
 
     - ```ENTRYPOINT ["curl"]``` → le conteneur exécutera toujours curl avec les arguments passés lors du ```docker run```.
 
-#### Commandes Docker :
+### Commandes Docker :
 
 -  Construire l’image :
 
@@ -202,5 +202,114 @@ Créer un conteneur Docker exécutant ```curl``` pour récupérer une URL, en ut
 
 &nbsp;
 
-## 🐋 Exercice 4 – (à compléter)
-📌 Cette section sera remplie après avoir terminé l’exercice 4.
+## 🐋 Exercice 4 – The Broken Development Setup
+### Objectif :
+
+Corriger la containerisation d’une application Node.js Express mal configurée et exécutable sur le port 3000.
+Le conteneur doit être sécurisé (non-root) et accessible depuis l’hôte.
+
+### Contexte :
+Tu as retrouvé les notes d’un développeur :
+
+- Express app avec un point d’entrée ```server.js```
+
+- ```package.json``` présent
+
+- Port 3000 requis
+
+- Erreurs de permission rencontrées
+
+Le code source est dans le dossier ```broken-app/```.
+
+
+### Scripts :
+
+- **Fichier :** ```4-dev-app.dockerfile```
+
+    ```dockerfile
+    # Étape 1 : image officielle Node.js
+    FROM node:18-slim
+
+    # Étape 2 : définir le répertoire de travail
+    WORKDIR /app
+
+    # Étape 3 : copier les fichiers de configuration
+    COPY broken-app/package*.json ./
+
+    # Étape 4 : installer les dépendances
+    RUN npm install --production
+
+    # Étape 5 : copier le reste du code source
+    COPY broken-app/ .
+
+    # Étape 6 : créer un utilisateur non-root
+    RUN useradd -m nodeuser && chown -R nodeuser /app
+
+    # Étape 7 : exécuter en tant que cet utilisateur
+    USER nodeuser
+
+    # Étape 8 : exposer le port 3000
+    EXPOSE 3000
+
+    # Étape 9 : démarrer l’application
+    CMD ["node", "server.js"]
+    ```
+
+
+- **Fichier :** ```4-run.sh```
+
+    ```bash
+    #!/bin/bash
+    # Build et exécution du conteneur Node.js
+
+    # Arrêt en cas d’erreur
+    set -e
+
+    # Construire l’image
+    docker build -t dev-app -f 4-dev-app.dockerfile .
+
+    # Lancer le conteneur sur le port 3000
+    docker run --rm -p 3000:3000 dev-app
+    ```
+
+- Rends le script exécutable :
+
+    ```bash
+    chmod +x 4-run.sh
+    ```
+
+### Commandes de test :
+
+- **Lancer le conteneur :** 
+
+    ```bash
+    bash 4-run.sh
+    ```
+
+- **Tester depuis ton hôte :** 
+
+    ```bash
+    curl http://localhost:3000
+    ```
+
+### Résultat obtenu :
+
+- L’application Express répond correctement sur le port 3000 :
+    ```json
+    {
+    "message": "Hello from the broken app!",
+    "status": "fixed",
+    "timestamp": "2025-10-28T10:07:27.937Z"
+    }
+    ```
+
+- Aucun message d’erreur lié aux permissions
+
+- L’exécution se fait sous un utilisateur non-root
+
+- Le conteneur est supprimé automatiquement après arrêt
+
+&nbsp;
+
+## 🐋 Exercice 5 – (à compléter)
+📌 Cette section sera remplie après avoir terminé l’exercice 5.
