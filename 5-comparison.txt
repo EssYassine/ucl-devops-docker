@@ -1,0 +1,9 @@
+Before optimization:
+bloated-app   latest   800MB
+
+After optimization:
+optimized-app latest   13MB
+
+✅ Image size reduced by ~98%
+✅ Runs as non-root user
+✅ Same functionality maintained

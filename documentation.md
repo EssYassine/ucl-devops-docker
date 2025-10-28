@@ -311,5 +311,109 @@ Le code source est dans le dossier ```broken-app/```.
 
 &nbsp;
 
-## 🐋 Exercice 5 – (à compléter)
-📌 Cette section sera remplie après avoir terminé l’exercice 5.
+## 🐋 Exercice 5 – Optimisation d’une application Go (Multi-stage build)
+### Objectif
+Réduire drastiquement la taille d’une image Docker pour une application Go REST API tout en conservant sa fonctionnalité, en utilisant un multi-stage build et un utilisateur non-root.
+
+### Contexte
+- L’image originale était très lourde **(800MB+)**
+
+- L’application est simple (REST API)
+
+- DevOps exige une image **optimisée pour production**
+
+- Le code source est dans ```go-app/```
+
+- L’image finale cible **< 20MB**
+
+### Scripts :
+
+- **Fichier :** ```5-optimized.dockerfile```
+
+    ```dockerfile
+    # ---------------------------
+    # Étape 1 : Build
+    # ---------------------------
+    FROM golang:1.21-alpine AS builder
+
+    WORKDIR /app
+
+    # Copier fichiers Go et télécharger dépendances
+    COPY go.mod go.sum ./
+    RUN go mod download
+
+    COPY . .
+
+    # Compiler statiquement
+    RUN CGO_ENABLED=0 GOOS=linux go build -o app
+
+    # ---------------------------
+    # Étape 2 : Runtime minimal
+    # ---------------------------
+    FROM scratch
+
+    # Créer un utilisateur non-root
+    USER 1001
+
+    # Copier le binaire depuis le builder
+    COPY --from=builder /app/app /app/app
+
+    # Exposer le port utilisé par l’app
+    EXPOSE 8080
+
+    # Démarrer l’application
+    ENTRYPOINT ["/app/app"]
+    ```
+
+- **Fichier :** ```5-comparison.txt```
+
+    ```mathematica
+    Before optimization:
+    bloated-app   latest   800MB
+
+    After optimization:
+    optimized-app latest   13MB
+
+    ✅ Image size reduced by ~98%
+    ✅ Runs as non-root user
+    ✅ Same functionality maintained
+    ```
+
+### Commandes Docker :
+
+- Construire l’image d’origine (pour comparaison) :
+
+    ```bash
+    docker build -t bloated-app -f go-app/bloated-go-app.dockerfile go-app/
+    ```
+
+- Construire l’image optimisée :
+
+    ```bash
+    docker build -t optimized-app -f 5-optimized.dockerfile go-app/
+    ```
+- Vérifier les tailles :
+
+    ```bash
+    docker images | grep app
+    ```
+- Tester l’application optimisée :
+
+    ```bash
+    docker run --rm -p 8080:8080 optimized-app
+    curl http://localhost:8080
+    ```
+
+### Résultat attendu
+- Image réduite à **~13MB** (vs 800MB avant)
+
+- L’application fonctionne **identiquement**
+
+- Conteneur s’exécute sous **un utilisateur non-root**
+
+- **Multi-stage build** utilisé pour séparer build et runtime
+
+&nbsp;
+
+## 🐋 Exercice 6 – (à compléter)
+📌 Cette section sera remplie après avoir terminé l’exercice 6.

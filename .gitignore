@@ -44,8 +44,8 @@ Thumbs.db
 # 3-curl.dockerfile
 # 4-dev-app.dockerfile
 # 4-run.sh
-5-optimized.dockerfile
-5-comparison.txt
+# 5-optimized.dockerfile
+# 5-comparison.txt
 6-setup.sh
 7-microservices.sh
 
