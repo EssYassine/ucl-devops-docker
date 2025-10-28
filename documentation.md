@@ -415,5 +415,135 @@ Réduire drastiquement la taille d’une image Docker pour une application Go RE
 
 &nbsp;
 
-## 🐋 Exercice 6 – (à compléter)
-📌 Cette section sera remplie après avoir terminé l’exercice 6.
+## 🐋 Exercice 6 – The Disappearing Database (PostgreSQL)
+### Objectif
+Mettre en place une base PostgreSQL fiable et persistante avec Docker Compose, qui :
+
+- garde les données entre les redémarrages
+
+- crée automatiquement les tables nécessaires
+
+### Contexte
+- L’équipe QA perd les données à chaque redémarrage du conteneur
+
+- Tables nécessaires : ```users``` et ```products```
+
+- Base accessible sur **localhost:5432**
+
+- L’ensemble doit être automatisé via un script
+
+### Scripts
+
+- **Fichier :** ```6-setup.sh```
+
+    ```bash
+    #!/bin/bash
+    
+    set -e
+
+    # Créer le dossier pour Docker Compose
+    mkdir -p postgres-db
+    cd postgres-db
+
+    # Créer le fichier docker-compose.yml
+    cat > docker-compose.yml <<EOF
+    version: '3.8'
+
+    services:
+    db:
+        image: postgres:15
+        container_name: test-postgres
+        environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_DB: testdb
+        volumes:
+        - pgdata:/var/lib/postgresql/data
+        - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+        ports:
+        - "5432:5432"
+
+    volumes:
+    pgdata:
+    EOF
+
+    # Créer le script d'initialisation SQL
+    cat > init.sql <<EOF
+    -- Création de la table users
+    CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(50) NOT NULL,
+        email VARCHAR(100) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
+    -- Création de la table products
+    CREATE TABLE IF NOT EXISTS products (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        price NUMERIC(10,2) NOT NULL,
+        stock INT NOT NULL
+    );
+    EOF
+
+    # Lancer PostgreSQL avec Docker Compose
+    docker-compose up -d
+
+    echo "PostgreSQL setup terminé. Base testdb initialisée et persistante sur le port 5432."
+    ```
+
+    Rendre le script exécutable :
+
+    ```bash
+    chmod +x 6-setup.sh
+    ```
+
+### Commandes de test
+
+- **Lancer le script :**
+
+    ```bash
+    bash 6-setup.sh
+    ```
+
+- **Vérifier que le conteneur tourne :**
+
+    ```bash
+    docker ps
+    ```
+
+- **Vérifier les tables dans la base :**
+
+    ```bash
+    docker exec -it test-postgres psql -U postgres -d testdb -c "\dt"
+    ```
+
+- **Tester la persistance après arrêt/redémarrage :**
+
+    ```bash
+    docker stop test-postgres
+    docker start test-postgres
+    docker exec -it test-postgres psql -U postgres -d testdb -c "\dt"
+    ```
+
+### Résultat obtenu
+- Base ```testdb``` sur **localhost:5432**
+
+- Tables ```users``` et ```products``` créées automatiquement
+
+    ```bash
+    Schema |   Name   | Type  |  Owner   
+    -------+----------+-------+----------
+    public | products | table | postgres
+    public | users    | table | postgres
+    (2 rows)
+    ```
+
+- Données et tables persistantes entre redémarrages
+
+- Déploiement automatisé via un simple script ```6-setup.sh```
+
+&nbsp;
+
+## 🐋 Exercice 7 – (à compléter)
+📌 Cette section sera remplie après avoir terminé l’exercice 7.

@@ -46,12 +46,12 @@ Thumbs.db
 # 4-run.sh
 # 5-optimized.dockerfile
 # 5-comparison.txt
-6-setup.sh
+# 6-setup.sh
 7-microservices.sh
 
 # Exercise 6 generated files
-docker-compose.yml
-init.sql
+# docker-compose.yml
+# init.sql
 
 # Exercise 8 - students create their own solution
 8-ai/docker-compose.yml
