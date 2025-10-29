@@ -545,5 +545,194 @@ Mettre en place une base PostgreSQL fiable et persistante avec Docker Compose, q
 
 &nbsp;
 
-## 🐋 Exercice 7 – (à compléter)
-📌 Cette section sera remplie après avoir terminé l’exercice 7.
+## 🐋 Exercice 7 – Microservices Communication Problem
+### Objectif
+Mettre en place une architecture **microservices** fonctionnelle comprenant plusieurs services interconnectés :
+
+- **API** (Node.js)
+
+- **Worker** (Python)
+
+- **PostgreSQL** (base de données)
+
+- **Redis** (système de file de tâches)
+
+L’ensemble doit communiquer à travers **Docker Compose**, en utilisant des **noms de service** plutôt que ```localhost```.
+
+### Structure du projet
+
+    ```pgsql
+    ucl-devops-docker/
+    │
+    ├── microservices-app/
+    │   ├── api/
+    │   │   ├── Dockerfile
+    │   │   ├── package.json
+    │   │   └── server.js
+    │   │
+    │   └── worker/
+    │       ├── Dockerfile
+    │       └── worker.py
+    │
+    ├── init.sql
+    ├── docker-compose.yml
+    └── 7-microservices.sh
+    ```
+
+### docker-compose.yml
+
+#### **Services :** 
+
+    1. API (Node.js)
+
+        - Contient le serveur Express sur le port **4000**
+
+        - Dépend de Redis et PostgreSQL
+
+        - Communique avec les autres services via le réseau ```micro-net```
+
+        - Exposé à l’hôte sur ```http://localhost:4000```
+
+        ```yaml
+        api:
+          build: ./microservices-app/api
+          ports:
+            - "4000:4000"
+          environment:
+            - DATABASE_URL=postgresql://postgres:postgres@db:5432/microservices
+            - REDIS_HOST=redis
+          depends_on:
+            - db
+            - redis
+          networks:
+            - micro-net
+        ```
+
+    2. Worker (Python)
+
+        - Écoute les tâches dans Redis
+
+        - Se connecte à PostgreSQL pour stocker les résultats
+
+        - Initialise automatiquement la table ```micro-net```
+
+        - Exposé à l’hôte sur ```processed_tasks``` si absente
+
+        ```yaml
+        worker:
+          build: ./microservices-app/worker
+          environment:
+            - REDIS_HOST=redis
+            - DB_HOST=db
+            - DB_PORT=5432
+            - DB_USER=postgres
+            - DB_PASSWORD=postgres
+            - DB_NAME=microservices
+          depends_on:
+            - redis
+            - db
+          networks:
+            - micro-net
+        ```
+
+    3. Redis
+
+        - Utilisé comme **file de messages** entre API et worker
+
+        - Pas de persistance nécessaire
+
+        ```yaml
+        redis:
+          image: redis:alpine
+          networks:
+            - micro-net
+        ```
+
+    4. PostgreSQL
+
+        - Base de données principale
+
+        - Contient la table ```processed_tasks```
+
+        - Données persistées via un volume Docker
+
+        - Initialisée automatiquement à partir de ```init.sql```
+
+        ```yaml
+        db:
+          image: postgres:alpine
+          environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+            - POSTGRES_DB=microservices
+          volumes:
+            - pgdata:/var/lib/postgresql/data
+            - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+          networks:
+            - micro-net
+        ```
+
+#### **Volumes et Réseau :** 
+
+    1. API (Node.js)
+
+        ```yaml
+        volumes:
+          pgdata:
+
+        networks:
+          micro-net:
+        ```
+
+        - pgdata : assure la **persistance** des données PostgreSQL
+
+        - **micro-net** : réseau Docker interne permettant la **découverte automatique des services**
+
+### Script d’automatisation – ```7-microservices.sh```
+Ce script :
+
+- Crée ou remplace ```docker-compose.yml```
+
+- Démarre tous les services en arrière-plan
+
+- Affiche l’état du système et l’URL d’accès
+
+```bash
+#!/bin/bash
+set -e
+
+echo "🚀 Setting up microservices environment..."
+docker compose down -v || true
+docker compose up -d --build
+
+echo "✅ Microservices running at http://localhost:4000"
+```
+
+### Test du fonctionnement
+
+- Lancer l’environnement
+    ```bash
+    bash 7-microservices.sh
+    ```
+
+- Vérifier les conteneurs
+    ```bash
+    docker compose ps
+    ```
+- Vérifier la santé de l’API
+    ```bash
+    curl http://localhost:4000/health
+    ```
+- Ajouter une tâche dans la queue
+    ```bash
+    curl http://localhost:4000/queue
+    ```
+- Consulter la base PostgreSQL
+    ```bash
+    docker exec -it <db_container> psql -U postgres -d microservices -c "SELECT * FROM processed_tasks;"
+    ```
+
+&nbsp;
+
+## 🐋 Exercice 8 – (à compléter)
+📌 Cette section sera remplie après avoir terminé l’exercice 8.

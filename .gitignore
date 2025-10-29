@@ -47,7 +47,7 @@ Thumbs.db
 # 5-optimized.dockerfile
 # 5-comparison.txt
 # 6-setup.sh
-7-microservices.sh
+# 7-microservices.sh
 
 # Exercise 6 generated files
 # docker-compose.yml
