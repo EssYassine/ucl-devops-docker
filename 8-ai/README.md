@@ -112,7 +112,7 @@ curl http://localhost:11434/api/tags
 
 &nbsp;
 
-## 🧩 Troubleshooting
+## 🧱 Structure du projet
 
 ```bash
 .
