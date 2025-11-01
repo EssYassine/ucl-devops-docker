@@ -20,7 +20,7 @@ This project sets up a **local ChatGPT-like interface** using Docker. Everything
                    │ (http://localhost:3080) |
                    └────────────┬────────────┘
                                 │
-                                	            ▼
+                                ▼
                       ┌────────────────────┐
                       │     LibreChat      │
                       │ (Frontend + API)   │
@@ -28,7 +28,7 @@ This project sets up a **local ChatGPT-like interface** using Docker. Everything
                                 │
                                 |
             ┌─────────────────────────────────────┐
-                  ▼                                     		   ▼
+            ▼                                     ▼
   ┌────────────────────┐               ┌────────────────────┐
   │       Ollama       │               │   Context7 MCP     │
   │ (qwen2.5:3b model) │               │ (local integration)│
