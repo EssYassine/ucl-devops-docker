@@ -1,0 +1,15 @@
+version: "0.8.0"
+
+turnstile:
+  siteKey: ""
+  secretKey: ""
+
+endpoints:
+  custom:
+    - label: "Ollama"
+      baseURL: "http://host.docker.internal:11434"
+      apiKey: "ollama" # placeholder, Ollama doesn’t require one
+      models:
+        default: ["llama3"]
+        llama3:
+          label: "Llama 3"

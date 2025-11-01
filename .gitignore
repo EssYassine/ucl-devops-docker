@@ -54,9 +54,9 @@ Thumbs.db
 # init.sql
 
 # Exercise 8 - students create their own solution
-8-ai/docker-compose.yml
-8-ai/setup.sh
-8-ai/README.md
-8-ai/*.yml
-8-ai/*.yaml
-8-ai/*.env
+# 8-ai/docker-compose.yml
+# 8-ai/setup.sh
+# 8-ai/README.md
+# 8-ai/*.yml
+# 8-ai/*.yaml
+# 8-ai/*.env

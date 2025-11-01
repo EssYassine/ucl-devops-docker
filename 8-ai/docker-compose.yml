@@ -1,0 +1,49 @@
+services:
+  librechat:
+    image: librechat/librechat:latest
+    container_name: librechat
+    environment:
+      NODE_ENV: production
+      MONGO_URI: mongodb://mongo:27017/librechat
+      #JWT_SECRET: 14f670cce22ac46ed8b2dc426f3c56796e318f459f4b87d4191016276bdd9d6e
+      JWT_SECRET: my_super_secret_key
+      CONFIG_PATH: /app/librechat/config/librechat.yaml
+      OLLAMA_BASE_URL: http://ollama:11434
+      ADMIN_EMAIL: admin@example.com
+      ADMIN_PASSWORD: mypassword
+      ACCESS_TOKEN_SECRET: super_access_secret_123
+      REFRESH_TOKEN_SECRET: super_refresh_secret_456
+    ports:
+      - "3080:3080"
+    depends_on:
+      - mongo
+      - ollama
+    networks:
+      - ai-net
+    volumes:
+      - ./librechat/config/librechat.yaml:/app/librechat/config/librechat.yaml
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    networks:
+      - ai-net
+    volumes:
+      - ollama_data:/root/.ollama
+
+  mongo:
+    image: mongo:6
+    container_name: mongo
+    volumes:
+      - librechat-mongo:/data/db
+    networks:
+      - ai-net
+
+volumes:
+  ollama_data:
+  librechat-mongo:
+
+networks:
+  ai-net:

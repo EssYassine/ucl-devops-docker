@@ -561,132 +561,132 @@ L’ensemble doit communiquer à travers **Docker Compose**, en utilisant des **
 
 ### Structure du projet
 
-    ```pgsql
-    ucl-devops-docker/
-    │
-    ├── microservices-app/
-    │   ├── api/
-    │   │   ├── Dockerfile
-    │   │   ├── package.json
-    │   │   └── server.js
-    │   │
-    │   └── worker/
-    │       ├── Dockerfile
-    │       └── worker.py
-    │
-    ├── init.sql
-    ├── docker-compose.yml
-    └── 7-microservices.sh
-    ```
+```pgsql
+ucl-devops-docker/
+│
+├── microservices-app/
+│   ├── api/
+│   │   ├── Dockerfile
+│   │   ├── package.json
+│   │   └── server.js
+│   │
+│   └── worker/
+│       ├── Dockerfile
+│       └── worker.py
+│
+├── init.sql
+├── docker-compose.yml
+└── 7-microservices.sh
+```
 
 ### docker-compose.yml
 
 #### **Services :** 
 
-    1. API (Node.js)
+- **API (Node.js)**
 
-        - Contient le serveur Express sur le port **4000**
+    - Contient le serveur Express sur le port **4000**
 
-        - Dépend de Redis et PostgreSQL
+    - Dépend de Redis et PostgreSQL
 
-        - Communique avec les autres services via le réseau ```micro-net```
+    - Communique avec les autres services via le réseau ```micro-net```
 
-        - Exposé à l’hôte sur ```http://localhost:4000```
+    - Exposé à l’hôte sur ```http://localhost:4000```
 
-        ```yaml
-        api:
-          build: ./microservices-app/api
-          ports:
-            - "4000:4000"
-          environment:
-            - DATABASE_URL=postgresql://postgres:postgres@db:5432/microservices
-            - REDIS_HOST=redis
-          depends_on:
-            - db
-            - redis
-          networks:
-            - micro-net
-        ```
+    ```yaml
+    api:
+        build: ./microservices-app/api
+        ports:
+          - "4000:4000"
+        environment:
+          - DATABASE_URL=postgresql://postgres:postgres@db:5432/microservices
+          - REDIS_HOST=redis
+        depends_on:
+          - db
+          - redis
+        networks:
+          - micro-net
+    ```
 
-    2. Worker (Python)
+- **Worker (Python)**
 
-        - Écoute les tâches dans Redis
+    - Écoute les tâches dans Redis
 
-        - Se connecte à PostgreSQL pour stocker les résultats
+    - Se connecte à PostgreSQL pour stocker les résultats
 
-        - Initialise automatiquement la table ```micro-net```
+    - Initialise automatiquement la table ```micro-net```
 
-        - Exposé à l’hôte sur ```processed_tasks``` si absente
+    - Exposé à l’hôte sur ```processed_tasks``` si absente
 
-        ```yaml
-        worker:
-          build: ./microservices-app/worker
-          environment:
-            - REDIS_HOST=redis
-            - DB_HOST=db
-            - DB_PORT=5432
-            - DB_USER=postgres
-            - DB_PASSWORD=postgres
-            - DB_NAME=microservices
-          depends_on:
-            - redis
-            - db
-          networks:
-            - micro-net
-        ```
+    ```yaml
+    worker:
+        build: ./microservices-app/worker
+        environment:
+          - REDIS_HOST=redis
+          - DB_HOST=db
+          - DB_PORT=5432
+          - DB_USER=postgres
+          - DB_PASSWORD=postgres
+          - DB_NAME=microservices
+        depends_on:
+          - redis
+          - db
+        networks:
+          - micro-net
+    ```
 
-    3. Redis
+- **Redis**
 
-        - Utilisé comme **file de messages** entre API et worker
+    - Utilisé comme **file de messages** entre API et worker
 
-        - Pas de persistance nécessaire
+    - Pas de persistance nécessaire
 
-        ```yaml
-        redis:
-          image: redis:alpine
-          networks:
-            - micro-net
-        ```
+    ```yaml
+    redis:
+        image: redis:alpine
+        networks:
+          - micro-net
+    ```
 
-    4. PostgreSQL
+- **PostgreSQL**
 
-        - Base de données principale
+    - Base de données principale
 
-        - Contient la table ```processed_tasks```
+    - Contient la table ```processed_tasks```
 
-        - Données persistées via un volume Docker
+    - Données persistées via un volume Docker
 
-        - Initialisée automatiquement à partir de ```init.sql```
+    - Initialisée automatiquement à partir de ```init.sql```
 
-        ```yaml
-        db:
-          image: postgres:alpine
-          environment:
-            - POSTGRES_USER=postgres
-            - POSTGRES_PASSWORD=postgres
-            - POSTGRES_DB=microservices
-          volumes:
-            - pgdata:/var/lib/postgresql/data
-            - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-          networks:
-            - micro-net
-        ```
+    ```yaml
+    db:
+        image: postgres:alpine
+        environment:
+          - POSTGRES_USER=postgres
+          - POSTGRES_PASSWORD=postgres
+          - POSTGRES_DB=microservices
+        volumes:
+          - pgdata:/var/lib/postgresql/data
+          - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+        networks:
+          - micro-net
+    ```
 
 #### **Volumes et Réseau :** 
 
-    1. API (Node.js)
+- **API (Node.js)**
 
-        ```yaml
-        volumes:
-          pgdata:
+    ```yaml
+    volumes:
+        pgdata:
 
-        networks:
-          micro-net:
-        ```
+    networks:
+        micro-net:
+    ```
 
-        - pgdata : assure la **persistance** des données PostgreSQL
+    - pgdata : assure la **persistance** des données PostgreSQL
 
-        - **micro-net** : réseau Docker interne permettant la **découverte automatique des services**
+    - **micro-net** : réseau Docker interne permettant la **découverte automatique des services**
 
 ### Script d’automatisation – ```7-microservices.sh```
 Ce script :
@@ -734,5 +734,186 @@ echo "✅ Microservices running at http://localhost:4000"
 
 &nbsp;
 
-## 🐋 Exercice 8 – (à compléter)
-📌 Cette section sera remplie après avoir terminé l’exercice 8.
+## 🐋 Exercice 8 – Local AI Chat Interface
+### Objectif
+Mettre en place une **interface de chat IA locale** similaire à ChatGPT, fonctionnant entièrement **hors ligne**, via une architecture Docker composée de :
+
+- **LibreChat** → Interface web de chat
+
+- **Ollama** → Moteur de modèle local (`qwen2.5:3b`)
+
+- **Context7 MCP** → Gestion de contexte et mémoire locale
+
+L’objectif est d’intégrer ces trois services pour permettre des conversations 100% locales, sans dépendance à des API externes.
+
+### Structure du projet
+
+```bash
+8-ai/
+│
+├── librechat/
+│   └── config/
+│
+├── docker-compose.yml
+├── setup.sh
+├── README.md
+└── DOCUMENTATION.md
+```
+
+### docker-compose.yml
+
+#### **Services :** 
+
+- **LibreChat**
+
+    - Fournit l’interface web (port **3080** en interne, exposé sur http://localhost:3000)
+
+    - Communique avec Ollama via l’API locale
+
+    - Peut être configuré dans ```librechat/config/```
+
+    ```yaml
+    librechat:
+        image: ghcr.io/danny-avila/librechat:latest
+        container_name: librechat
+        ports:
+          - "3000:3080"
+        depends_on:
+          - ollama
+          - context7
+        environment:
+          - ALLOW_SOCIAL_LOGIN=false
+          - ENABLE_EMAIL_AUTH=true
+          - MONGO_URI=mongodb://mongo:27017/librechat
+          - JWT_SECRET=your_secret_here
+        networks:
+          - local-ai-net
+    ```
+
+- **Ollama**
+
+    - Moteur de modèle local
+
+    - Contient le modèle `qwen2.5:3b`
+
+    - Accessible via ```http://host.docker.internal:11434```
+
+    ```yaml
+    ollama:
+        image: ollama/ollama
+        container_name: ollama
+        ports:
+          - "11434:11434"
+        volumes:
+          - ollama_models:/root/.ollama
+        networks:
+          - local-ai-net
+    ```
+
+- **Context7 MCP**
+
+    - Fournit une **mémoire conversationnelle locale**
+
+    - Gère les échanges entre LibreChat et Ollama
+
+    ```yaml
+    context7:
+        image: context7/mcp:latest
+        container_name: context7
+        depends_on:
+          - ollama
+        networks:
+          - local-ai-net
+    ```
+
+#### **Volumes et Réseau :** 
+
+```yaml
+volumes:
+  ollama_models:
+
+networks:
+  local-ai-net:
+```
+- **ollama_models** : stocke les modèles localement (évite de retélécharger à chaque redémarrage)
+
+- **local-ai-net** : réseau interne pour la communication entre services
+
+### Script d’automatisation – `setup.sh`
+
+Ce script :
+
+- Démarre tous les conteneurs Docker
+
+- Télécharge le modèle `qwen2.5:3b` si absent
+
+- Configure LibreChat pour pointer vers Ollama
+
+- Vérifie le bon fonctionnement du réseau
+
+```bash
+#!/bin/bash
+set -e
+
+echo "🚀 Initialisation de l'environnement Local AI..."
+docker compose down -v || true
+docker compose up -d --build
+
+echo "📦 Téléchargement du modèle Qwen2.5..."
+docker exec ollama ollama pull qwen2.5:3b
+
+echo "✅ Tous les services sont démarrés !"
+echo "🌐 Accédez à LibreChat via : http://localhost:3000"
+```
+
+### Vérification du fonctionnement
+
+- Lister les conteneurs actifs :
+
+```bash
+docker compose ps
+```
+
+- Vérifier que le modèle est disponible :
+
+```bash
+curl http://localhost:11434/api/tags
+```
+
+- Accéder à l’interface :
+👉 http://localhost:3080
+
+- Essayer un prompt :
+
+    Sélectionner `qwen2.5:3b` dans LibreChat et poser une question.
+
+### Dépannage
+
+| Problème                            | Solution possible                       |
+| ----------------------------------- | --------------------------------------- |
+| L’interface LibreChat ne charge pas | Vérifier que le port 3000 est libre     |
+| Ollama ne trouve pas le modèle      | Relancer `ollama pull qwen2.5:3b`       |
+| Erreur d’authentification           | S’assurer que `JWT_SECRET` est défini   |
+| Lenteur à la première requête       | Le modèle se charge en mémoire (normal) |
+
+### Points clés d’apprentissage
+
+- Communication interservices via **Docker Compose**
+
+- Configuration d’un **LLM local** avec Ollama
+
+- Intégration front-end / back-end via **LibreChat**
+
+- Gestion du contexte conversationnel avec **Context7 MCP**
+
+- Sécurisation et isolation via **réseau Docker interne**
+
+### Résultat attendu
+
+Une interface de chat fonctionnelle accessible sur :
+
+👉 http://localhost:3000
+
+Fonctionnant entièrement hors ligne, avec un modèle IA local Qwen2.5:3b propulsé par Ollama et piloté depuis LibreChat.
+
+
